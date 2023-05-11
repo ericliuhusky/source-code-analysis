@@ -68,7 +68,7 @@ struct SymbolTable {
         }
         let stringTableIndex = symbolTable[Int(symbolTableIndex)].n_un.n_strx
         let symbolName = stringTable.advanced(by: Int(stringTableIndex))
-        return String(cPointer: symbolName, count: strlen(symbolName))
+        return String(cString: symbolName)
     }
 }
 
@@ -131,7 +131,7 @@ extension [Segment] {
 
 extension Segment {
     var segmentName: String {
-        String(cPointer: UnsafePointer(tuple: segname), count: 16)
+        String(cString: UnsafePointer(tuple: segname))
     }
     
     func toSymbolTableSegment() -> symtab_command {
@@ -177,14 +177,6 @@ extension Section {
     var isGOT: Bool {
         Int32(flags) & SECTION_TYPE == S_LAZY_SYMBOL_POINTERS ||
         Int32(flags) & SECTION_TYPE == S_NON_LAZY_SYMBOL_POINTERS
-    }
-}
-
-extension String {
-    init(cPointer: UnsafePointer<CChar>, count: Int) {
-        let buffer = UnsafeBufferPointer(start: cPointer, count: count)
-        let cString = [CChar](buffer) + [0]
-        self.init(cString: cString)
     }
 }
 
